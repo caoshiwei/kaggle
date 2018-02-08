@@ -15,6 +15,7 @@ from sklearn import linear_model
 from sklearn import svm
 from sklearn.ensemble import RandomForestClassifier as RF
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import scorer
 from sklearn.model_selection import GridSearchCV
 
 import re
