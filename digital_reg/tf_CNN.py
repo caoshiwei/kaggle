@@ -79,23 +79,22 @@ def train(steps_num, batch_size):
             ids = random.sample(range(datasize), batch_size)
             batch_x = train_x[ids]
             batch_labels = labels[ids]
-            loss, _ = sess.run([loss, opt_], feed_dict={X: batch_x, label: batch_labels})
+            loss_value, _ = sess.run([loss, opt_], feed_dict={X: batch_x, label: batch_labels})
 
             if iter % 200 == 0:
                 print('--------200 steps-------')
-                # out_label = np.argmax(out, axis=1)
-
-            if iter % 2000 == 0:
-                print("After %d training steps, loss on training batch is %g" % (iter, loss))
                 ids = random.sample(range(datasize), batch_size)
                 batch_test_x = train_x[ids]
                 batch_test_labels = labels[ids]
                 out = sess.run(prob_logits, feed_dict={X: batch_test_x})
                 out_labels_idx = np.argmax(out, axis=1)
                 labels_idx = np.argmax(batch_test_labels, axis=1)
-                actual = len([i for i in range(batch_size) if
-                              labels_idx[i] == out_labels_idx[i]]) / batch_size
-                print('itr: {}:loss {}:actual {}'.format(iter, loss, actual))
+                actual = len([i for i in range(batch_size) if labels_idx[i] == out_labels_idx[i]]) / np.float32(batch_size)
+                print('itr: {}:loss {}:actual {}'.format(iter, loss_value, actual))
+                # out_label = np.argmax(out, axis=1)
+
+            if iter % 2000 == 0:
+                print("After %d training steps, loss on training batch is %g" % (iter, loss_value))
                 print('------------------save model---------------')
                 saver.save(sess, './save/model.ckpt')
 

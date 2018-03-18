@@ -312,6 +312,3 @@ if __name__ == "__main__":
                            'Survived': predict_y.astype(np.int32)})
     # print(result)
     result.to_csv("./data/result_test.csv", index=False)
-
-
-
