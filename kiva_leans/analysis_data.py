@@ -305,3 +305,22 @@ g2.set_ylabel("Term in Months", fontsize=12)
 plt.subplots_adjust(wspace=0.2, hspace=0.5, top=0.9)
 plt.show()
 
+df_train = pd.read_csv('../input/train.csv')
+df_test = pd.read_csv('../input/test.csv')
+
+is_attribute = df_train.is_attribute.value_counts()
+plt.figure(figsize=(6,5))
+
+plt.subplot(111)
+g1 = sns.barplot(x=is_attribute.index, y=is_attribute.values)
+g1.set_title("is_attribute dist", fontsize=15)
+g1.set_xlabel("is_attribute")
+g1.set_ylabel("count normalize")
+
+
+df_train_sample = pd.read_csv("./data/train.csv", chunksize=10)
+for df_train in pd.read_csv("./data/train.csv", chunksize=100000):
+    # print('Size of uploaded chunk: %i instances, %i features' % (df_train.shape))
+    # print(df_train)
+    df_train_sample = pd.concat(df_train_sample, df_train.sample(frac=0.01))
+print('Size of sample chunk: %i instances, %i features' % (df_train_sample.shape))
