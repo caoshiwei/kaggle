@@ -29,8 +29,8 @@ test_df = pd.read_csv("../input/test.csv")
 X_train = train_df[["question1", "question2"]].fillna("null").values
 X_test = test_df[["question1", "question2"]].fillna("null").values
 
-num_words=100000
-token_maker = Tokenizer(num_words=num_words)
+NUM_WORDS=100000
+token_maker = Tokenizer(num_words=NUM_WORDS)
 token_maker.fit_on_texts(np.append(X_train.reshape(-1), X_test.reshape(-1)))
 
 # print(len(token_maker.word_counts))
@@ -62,12 +62,12 @@ embed_size = 300
 embedding_idx = dict(get_ceofs(*line.rstrip().rsplit(' ')) for line in open(EMBEDDING_FILE))
 
 word_idx = token_maker.word_index
-nb_words = min(num_words, len(word_idx))
+nb_words = min(NUM_WORDS, len(word_idx))
 
 embedding_matrix = np.zeros((nb_words, embed_size))
 
 for word, idx in word_idx.items():
-    if idx >= num_words:
+    if idx >= NUM_WORDS:
         continue
     embed_vec = embedding_idx.get(word)
     if embed_vec is not None:
@@ -93,8 +93,8 @@ class RocAucEvaluation(Callback):
 def get_model():
     inp1 = Input(shape=(max_len,))
     inp2 = Input(shape=(max_len,))
-    x1 = Embedding(num_words, embed_size, weights=[embedding_matrix], trainable=False)(inp1)
-    x2 = Embedding(num_words, embed_size, weights=[embedding_matrix], trainable=False)(inp2)
+    x1 = Embedding(NUM_WORDS, embed_size, weights=[embedding_matrix], trainable=False)(inp1)
+    x2 = Embedding(NUM_WORDS, embed_size, weights=[embedding_matrix], trainable=False)(inp2)
 
     x1 = SpatialDropout1D(0.1)(x1)
     x2 = SpatialDropout1D(0.1)(x2)
@@ -132,7 +132,7 @@ def data_genrator(X1, X2, y, batch_size=32):
     loop_size = data_size // batch_size
     while 1:
         for i in range(loop_size):
-            yield [X1[i: i + batch_size, : ], X2[i: i + batch_size, : ]], y[i : i + batch_size, :]
+            yield [X1[i*batch_size: (i+1)*batch_size, : ], X2[i*batch_size: (i+1)*batch_size, : ]], y[i*batch_size : (i+1)*batch_size, :]
 
 
 batch_size = 32
@@ -140,10 +140,10 @@ epochs = 2
 X_tra1, X_val1, X_tra2, X_val2, y_tra, y_val = train_test_split(X_train1, X_train2, labels, train_size=0.95, random_state=233)
 RocAuc = RocAucEvaluation(validation_data=([X_val1, X_val2], y_val), interval=1)
 
-model.fit(x=[X_train1, X_train2], y=labels, batch_size=batch_size, epochs=epochs,
-          validation_data=([X_val1, X_val2], y_val), callbacks=[RocAuc], verbose=1)
-# hist = model.fit_generator(data_genrator(X_tra1, X_tra2, y_tra), steps_per_epoch=1000, epochs=100,
-#                           validation_data=([X_val1, X_val2], y_val), callbacks=[RocAuc, check_point, early_stopper], verbose=1)
+# model.fit(x=[X_train1, X_train2], y=labels, batch_size=batch_size, epochs=epochs,
+#           validation_data=([X_val1, X_val2], y_val), callbacks=[RocAuc], verbose=1)
+hist = model.fit_generator(data_genrator(X_tra1, X_tra2, y_tra), steps_per_epoch=1000, epochs=100,
+                          validation_data=([X_val1, X_val2], y_val), callbacks=[RocAuc, check_point, early_stopper], verbose=1)
 
 submission = pd.read_csv('../input/sample_submission.csv')
 y_pred = model.predict(x=[X_test1, X_test2], batch_size=1024)

@@ -24,8 +24,8 @@ X_test = test_df[["question1", "question2"]].fillna("null").values
 is_dup = train_df["is_duplicate"].value_counts()
 print(is_dup)
 
-num_words=100000
-token_maker = Tokenizer(num_words=num_words)
+NUM_WORDS=100000
+token_maker = Tokenizer(num_words=NUM_WORDS)
 token_maker.fit_on_texts(np.append(X_train.reshape(-1), X_test.reshape(-1)))
 
 # print(len(token_maker.word_counts))
@@ -58,8 +58,8 @@ print(labels.shape)
 inp1 = Input(shape=(max_len,))
 inp2 = Input(shape=(max_len, ))
 embed_size = 256
-x1 = Embedding(num_words, embed_size)(inp1)
-x2 = Embedding(num_words, embed_size)(inp2)
+x1 = Embedding(NUM_WORDS, embed_size)(inp1)
+x2 = Embedding(NUM_WORDS, embed_size)(inp2)
 
 x1 = SpatialDropout1D(0.1)(x1)
 x2 = SpatialDropout1D(0.1)(x2)

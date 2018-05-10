@@ -27,8 +27,8 @@ test_df = pd.read_csv("../input/test.csv")
 X_train = train_df[["question1", "question2"]].fillna("null").values
 X_test = test_df[["question1", "question2"]].fillna("null").values
 
-num_words=100000
-token_maker = Tokenizer(num_words=num_words)
+NUM_WORDS=100000
+token_maker = Tokenizer(num_words=NUM_WORDS)
 token_maker.fit_on_texts(np.append(X_train.reshape(-1), X_test.reshape(-1)))
 
 # print(len(token_maker.word_counts))
@@ -59,13 +59,13 @@ def get_ceofs(word, *arr):
 embedding_idx = dict(get_ceofs(*line.rstrip().rsplit(' ')) for line in open(EMBEDDING_FILE))
 
 word_idx = token_maker.word_index
-nb_words = min(num_words, len(word_idx))
+nb_words = min(NUM_WORDS, len(word_idx))
 
 embed_size = 300
 embedding_matrix = np.zeros((nb_words, embed_size))
 
 for word, idx in word_idx.items():
-    if idx >= num_words:
+    if idx >= NUM_WORDS:
         continue
     embed_vec = embedding_idx.get(word)
     if embed_vec is not None:
@@ -91,8 +91,8 @@ class RocAucEvaluation(Callback):
 def get_model():
     inp1 = Input(shape=(max_len,))
     inp2 = Input(shape=(max_len,))
-    x1 = Embedding(num_words, embed_size, weights=[embedding_matrix], trainable=False)(inp1)
-    x2 = Embedding(num_words, embed_size, weights=[embedding_matrix], trainable=False)(inp2)
+    x1 = Embedding(NUM_WORDS, embed_size, weights=[embedding_matrix], trainable=False)(inp1)
+    x2 = Embedding(NUM_WORDS, embed_size, weights=[embedding_matrix], trainable=False)(inp2)
 
     x1 = SpatialDropout1D(0.1)(x1)
     x2 = SpatialDropout1D(0.1)(x2)
